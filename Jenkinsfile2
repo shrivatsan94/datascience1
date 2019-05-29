@@ -1,0 +1,43 @@
+pipeline{
+    agent 
+    {
+        label 'master'
+    }
+    
+    stages{
+      stage('checkout'){
+        steps{
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/shrivatsan94/datascience1']]])
+        }
+    }
+    
+    stage('set environment'){
+        steps{
+            tool name: 'python3', type: 'jenkins.plugins.shiningpanda.tools.PythonInstallation'
+        }
+    }
+    
+    stage('python build'){
+        steps{
+            bat '''python ./src/factorial/fact.py'''
+        }
+    }
+    
+    
+    stage('python lint'){
+        steps{
+            bat'''python -m pylint ./src
+             exit 0'''
+        }
+    }
+    
+    stage('python test'){
+        steps{
+            bat'''python -m pytest
+                exit 0'''
+        }
+    }
+
+}
+
+}
